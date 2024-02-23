@@ -20,128 +20,120 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 DEALINGS IN THE SOFTWARE.
 */
 
-using System;
-using System.CodeDom;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Serialize.OpenXml.CodeGen.Extentions
+namespace Serialize.OpenXml.CodeGen.Extensions;
+
+/// <summary>
+/// Static class containing extension methods for the <see cref="string"/>
+/// class.
+/// </summary>
+public static partial class StringExtensions
 {
+    #region Public Static Methods
+
     /// <summary>
-    /// Static class containing extension methods for the <see cref="String"/> class.
+    /// Strips out the standard header text that is included when a
+    /// <see href="https://docs.microsoft.com/en-us/dotnet/api/system.codedom.compiler.codedomprovider"/>
+    /// derived class generates dotnet code.
     /// </summary>
-    public static class StringExtensions
+    /// <param name="raw">The raw code <see cref="string"/> produced by the
+    ///     <see href="https://docs.microsoft.com/en-us/dotnet/api/system.codedom.compiler.codedomprovider"/>
+    ///     derived class.</param>
+    /// <returns>A new code <see cref="string"/> value with the default
+    ///     headers removed.</returns>
+    public static string RemoveOutputHeaders(this string raw)
     {
-        #region Public Static Methods
+        var indicator = new string('-', 78);
+        var sb = new StringBuilder();
+        bool inHeader = false;
 
-        /// <summary>
-        /// Strips out the standard header text that is included when a
-        /// <see href="https://docs.microsoft.com/en-us/dotnet/api/system.codedom.compiler.codedomprovider"/> 
-        /// derived class
-        /// generates dotnet code.
-        /// </summary>
-        /// <param name="raw">
-        /// The raw code <see cref="string"/> produced by the 
-        /// <see href="https://docs.microsoft.com/en-us/dotnet/api/system.codedom.compiler.codedomprovider"/> 
-        /// derived class.
-        /// </param>
-        /// <returns>
-        /// A new code <see cref="string"/> value with the default headers removed.
-        /// </returns>
-        public static string RemoveOutputHeaders(this string raw)
+        using (var sr = new StringReader(raw))
         {
-            var indicator = new string('-', 78);
-            var sb = new StringBuilder();
-            bool inHeader = false;
-
-            using (var sr = new StringReader(raw))
+            string currentLine = sr.ReadLine();
+            while (currentLine != null)
             {
-                string currentLine = sr.ReadLine();
-                while (currentLine != null)
+                if (currentLine.EndsWith(indicator))
                 {
-                    if (currentLine.EndsWith(indicator))
-                    {
-                        if (inHeader) currentLine = sr.ReadLine();
-                        inHeader = !inHeader;
-                    }
-                    if (Regex.IsMatch(currentLine, "\".*\\\'.*\""))
-                    {
-                        currentLine = currentLine.Replace("\\'", "'");
-                    }
-                    if (!inHeader) sb.AppendLine(currentLine);
-                    currentLine = sr.ReadLine();
+                    if (inHeader)
+                        currentLine = sr.ReadLine();
+                    inHeader = !inHeader;
                 }
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Retrieves only the upper case characters from a given string.
-        /// </summary>
-        /// <param name="s">The <see cref="string"/> to analyze.</param>
-        /// <returns>
-        /// The upper case characters from <paramref name="s"/>.
-        /// </returns>
-        public static string RetrieveUpperCaseChars(this string s)
-        {
-            var cs = s.Where(c => Char.IsUpper(c)).ToArray();
-            return new string(cs);
-        }
-
-        /// <summary>
-        /// Ensures that the first letter of a given string is lowercase.
-        /// </summary>
-        /// <param name="s">
-        /// The <see cref="String"/> to manipulate.
-        /// </param>
-        /// <returns>
-        /// The same value as <paramref name="s"/> with the first character converted
-        /// to lowercase.
-        /// </returns>
-        public static string ToCamelCase(this string s)
-        {
-            if (String.IsNullOrWhiteSpace(s)) return s;
-            var sArray = s.ToCharArray();
-
-            sArray[0] = Char.ToLowerInvariant(sArray[0]);
-            return new string(sArray);
-        }
-
-        /// <summary>
-        /// Ensures that the only the first letter of <paramref name="s"/> is
-        /// capitalized.
-        /// </summary>
-        /// <param name="s">
-        /// The <see cref="string"/> to capitalize.
-        /// </param>
-        /// <returns>
-        /// A new <see cref="string"/> with the value of <paramref name="s"/> that has only
-        /// the first letter capitalized.
-        /// </returns>
-        public static string ToTitleCase(this string s)
-        {
-            CultureInfo ci = CultureInfo.CurrentCulture;
-            char[] chars = new char[s.Length];
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (i == 0)
+                if (OutputHeaderRegex().IsMatch(currentLine))
                 {
-                    chars[i] = !Char.IsUpper(s[i])
-                        ? Char.ToUpper(s[i], ci)
-                        : s[i];
-                    continue;
+                    currentLine = currentLine.Replace("\\'", "'");
                 }
-                chars[i] = !Char.IsWhiteSpace(s[i]) && !Char.IsLower(s[i])
-                    ? Char.ToLower(s[i], ci)
-                    : s[i];
+                if (!inHeader)
+                    sb.AppendLine(currentLine);
+                currentLine = sr.ReadLine();
             }
-            return new string(chars);
         }
-
-        #endregion
+        return sb.ToString();
     }
+
+    /// <summary>
+    /// Retrieves only the upper case characters from a given string.
+    /// </summary>
+    /// <param name="s">The <see cref="string"/> to analyze.</param>
+    /// <returns>The upper case characters from <paramref name="s"/>.
+    ///     </returns>
+    public static string RetrieveUpperCaseChars(this string s)
+    {
+        var cs = s.Where(char.IsUpper).ToArray();
+        return new string(cs);
+    }
+
+    /// <summary>
+    /// Ensures that the first letter of a given string is lowercase.
+    /// </summary>
+    /// <param name="s">The <see cref="string"/> to manipulate.</param>
+    /// <returns>The same value as <paramref name="s"/> with the first
+    ///     character converted to lowercase.</returns>
+    public static string ToCamelCase(this string s)
+    {
+        if (string.IsNullOrWhiteSpace(s))
+        {
+            return s;
+        }
+
+        var sArray = s.ToCharArray();
+
+        sArray[0] = char.ToLowerInvariant(sArray[0]);
+        return new string(sArray);
+    }
+
+    /// <summary>
+    /// Ensures that the only the first letter of <paramref name="s"/> is
+    /// capitalized.
+    /// </summary>
+    /// <param name="s">The <see cref="string"/> to capitalize.</param>
+    /// <returns>A new <see cref="string"/> with the value of
+    ///     <paramref name="s"/> that has only the first letter capitalized.
+    ///     </returns>
+    public static string ToTitleCase(this string s)
+    {
+        CultureInfo ci = CultureInfo.CurrentCulture;
+        char[] chars = new char[s.Length];
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            if (i == 0)
+            {
+                chars[i] = !char.IsUpper(s[i]) ? char.ToUpper(s[i], ci) : s[i];
+                continue;
+            }
+            chars[i] =
+                !char.IsWhiteSpace(s[i]) && !char.IsLower(s[i]) ? char.ToLower(s[i], ci) : s[i];
+        }
+        return new string(chars);
+    }
+
+    [GeneratedRegex("\".*\\\'.*\"")]
+    private static partial Regex OutputHeaderRegex();
+
+    #endregion Public Static Methods
 }

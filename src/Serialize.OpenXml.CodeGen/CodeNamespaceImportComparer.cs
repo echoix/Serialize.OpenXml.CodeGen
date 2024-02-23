@@ -21,140 +21,157 @@ DEALINGS IN THE SOFTWARE.
 */
 
 using System;
-using System.Collections.Generic;
 using System.CodeDom;
+using System.Collections.Generic;
 
-namespace Serialize.OpenXml.CodeGen
-{
-    /// <summary>
-    /// Comparer based class used to sort <see cref="CodeNamespaceImport"/> objects.
-    /// </summary>
-    public class CodeNamespaceImportComparer 
-        : Comparer<CodeNamespaceImport>, 
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Comparer based class used to sort <see cref="CodeNamespaceImport"/> objects.
+/// </summary>
+public class CodeNamespaceImportComparer
+    : Comparer<CodeNamespaceImport>,
         IEqualityComparer<CodeNamespaceImport>
+{
+    #region Private Static Fields
+
+    /// <summary>
+    /// Holds the comparer object to use for all string comparison operations.
+    /// </summary>
+    private static readonly StringComparer _cmpr = StringComparer.Ordinal;
+
+    #endregion
+
+    #region Private Instance Fields
+
+    /// <summary>
+    /// Holds the <see cref="NamespaceAliasOptions"/> object to use when
+    /// comparing.
+    /// </summary>
+    private readonly NamespaceAliasOptions _opts;
+
+    #endregion
+
+    #region Public Constructors
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="CodeNamespaceImportComparer"/> class with the
+    /// <see cref="NamespaceAliasOptions"/> object of the current request.
+    /// </summary>
+    /// <param name="options">The <see cref="NamespaceAliasOptions"/> object to
+    ///     use when comparing.</param>
+    public CodeNamespaceImportComparer(NamespaceAliasOptions options)
     {
-        #region Private Static Fields
+        _opts = options ?? throw new ArgumentNullException(nameof(options));
+    }
 
-        /// <summary>
-        /// Holds the comparer object to use for all string comparison operations.
-        /// </summary>
-        private static readonly StringComparer _cmpr = StringComparer.Ordinal;
+    #endregion
 
-        #endregion
+    #region Public Instance Methods
 
-        #region Private Instance Fields
-
-        /// <summary>
-        /// Holds the <see cref="NamespaceAliasOptions"/> object to use when comparing.
-        /// </summary>
-        private readonly NamespaceAliasOptions _opts;
-
-        #endregion
-
-        #region Public Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CodeNamespaceImportComparer"/>
-        /// class with the <see cref="NamespaceAliasOptions"/> object of the current
-        /// request.
-        /// </summary>
-        /// <param name="options">
-        /// The <see cref="NamespaceAliasOptions"/> object to use when comparing.
-        /// </param>
-        public CodeNamespaceImportComparer(NamespaceAliasOptions options)
+    /// <inheritdoc/>
+    public override int Compare(CodeNamespaceImport? x, CodeNamespaceImport? y)
+    {
+        // Check to make sure that either both CodeNamespaceImport objects
+        // have the assignment operator or both do not have one.
+        if (!string.IsNullOrWhiteSpace(_opts.AssignmentOperator))
         {
-            _opts = options ?? throw new ArgumentNullException(nameof(options));
+            if (
+                x.Namespace.Contains(_opts.AssignmentOperator)
+                && !y.Namespace.Contains(_opts.AssignmentOperator)
+            )
+            {
+                return 1;
+            }
+            if (
+                !x.Namespace.Contains(_opts.AssignmentOperator)
+                && y.Namespace.Contains(_opts.AssignmentOperator)
+            )
+            {
+                return -1;
+            }
         }
 
-        #endregion
-
-        #region Public Instance Methods
-
-        /// <inheritdoc/>
-        public override int Compare(CodeNamespaceImport x, CodeNamespaceImport y)
+        // Check the namespace name first.
+        if (!_cmpr.Equals(x.Namespace, y.Namespace))
         {
-            // Check to make sure that either both CodeNamespaceImport objects
-            // have the assignment operator or both do not have one.
-            if (!String.IsNullOrWhiteSpace(_opts.AssignmentOperator))
-            {
-                if (x.Namespace.Contains(_opts.AssignmentOperator) &&
-                    !y.Namespace.Contains(_opts.AssignmentOperator))
-                {
-                    return 1;
-                }
-                if (!x.Namespace.Contains(_opts.AssignmentOperator) &&
-                    y.Namespace.Contains(_opts.AssignmentOperator))
-                {
-                    return -1;
-                }
-            }
+            return _cmpr.Compare(x.Namespace, y.Namespace);
+        }
 
-            // Check the namespace name first.
-            if (!_cmpr.Equals(x.Namespace, y.Namespace))
-            {
-                return _cmpr.Compare(x.Namespace, y.Namespace);
-            }
-
-            // See if any of the LinePragma properties are null and return the appropriate code.
-            if (x.LinePragma is null && y.LinePragma is null) return 0;
-            if (x.LinePragma is null) return 1;
-            if (y.LinePragma is null) return -1;
-
-            // Compare linepragma properties if both parameters have them.
-            if (!_cmpr.Equals(x.LinePragma.FileName, y.LinePragma.FileName))
-            {
-                return _cmpr.Compare(x.LinePragma.FileName, y.LinePragma.FileName);
-            }
-            if (!x.LinePragma.LineNumber.Equals(y.LinePragma.LineNumber))
-            {
-                return x.LinePragma.LineNumber.CompareTo(y.LinePragma.LineNumber);
-            }
+        // See if any of the LinePragma properties are null and return the appropriate code.
+        if (x.LinePragma is null && y.LinePragma is null)
+        {
             return 0;
         }
-
-        /// <inheritdoc/>
-        public bool Equals(CodeNamespaceImport x, CodeNamespaceImport y)
+        if (x.LinePragma is null)
         {
-            // Check the namespace name first.
-            if (!_cmpr.Equals(x.Namespace, y.Namespace)) return false;
-
-            // Check the linepragma properties next
-            if (x.LinePragma != null)
-            {
-                if (y.LinePragma == null) return false;
-
-                if (!_cmpr.Equals(x.LinePragma.FileName, y.LinePragma.FileName)) return false;
-                if (!x.LinePragma.LineNumber.Equals(y.LinePragma.LineNumber)) return false;
-            }
-            else
-            {
-                if (y.LinePragma != null) return false;
-            }
-            return true;
+            return 1;
+        }
+        if (y.LinePragma is null)
+        {
+            return -1;
         }
 
-        /// <inheritdoc/>
-        public int GetHashCode(CodeNamespaceImport obj)
+        // Compare LinePragma properties if both parameters have them.
+        if (!_cmpr.Equals(x.LinePragma.FileName, y.LinePragma.FileName))
         {
-            if (obj is null) return 0;
-
-            unchecked
-            {
-                int hash = unchecked((int)2166136261);
-                const int prime = 16777619;
-
-                hash = (hash ^ obj.Namespace.GetHashCode()) * prime;
-
-                if (obj.LinePragma != null)
-                {
-                    hash = (hash ^ obj.LinePragma.FileName.GetHashCode()) * prime;
-                    hash = (hash ^ obj.LinePragma.LineNumber.GetHashCode()) * prime;
-                }
-
-                return hash;
-            }
+            return _cmpr.Compare(x.LinePragma.FileName, y.LinePragma.FileName);
         }
-
-        #endregion
+        if (!x.LinePragma.LineNumber.Equals(y.LinePragma.LineNumber))
+        {
+            return x.LinePragma.LineNumber.CompareTo(y.LinePragma.LineNumber);
+        }
+        return 0;
     }
+
+    /// <inheritdoc/>
+    public bool Equals(CodeNamespaceImport x, CodeNamespaceImport y)
+    {
+        // Check the namespace name first.
+        if (!_cmpr.Equals(x.Namespace, y.Namespace))
+            return false;
+
+        // Check the LinePragma properties next
+        if (x.LinePragma != null)
+        {
+            if (y.LinePragma == null)
+                return false;
+
+            if (!_cmpr.Equals(x.LinePragma.FileName, y.LinePragma.FileName))
+                return false;
+            if (!x.LinePragma.LineNumber.Equals(y.LinePragma.LineNumber))
+                return false;
+        }
+        else
+        {
+            if (y.LinePragma != null)
+                return false;
+        }
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public int GetHashCode(CodeNamespaceImport obj)
+    {
+        if (obj is null)
+            return 0;
+        unchecked
+        {
+            int hash = unchecked((int)2166136261);
+            const int prime = 16777619;
+
+            hash = (hash ^ obj.Namespace.GetHashCode()) * prime;
+
+            if (obj.LinePragma != null)
+            {
+                hash = (hash ^ obj.LinePragma.FileName.GetHashCode()) * prime;
+                hash = (hash ^ obj.LinePragma.LineNumber.GetHashCode()) * prime;
+            }
+
+            return hash;
+        }
+    }
+
+    #endregion
 }

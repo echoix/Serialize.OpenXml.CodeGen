@@ -20,30 +20,29 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 DEALINGS IN THE SOFTWARE.
 */
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Identifies which order that the namespace alias assignment is performed
+/// for a given .NET language.
+/// </summary>
+public enum NamespaceAliasOrder : byte
 {
     /// <summary>
-    /// Identifies which order that the namespace alias assignment
-    /// is performed for a given .NET language.
+    /// Indicates that a given .NET language does not support namespace
+    /// aliases.
     /// </summary>
-    public enum NamespaceAliasOrder : byte
-    {
-        /// <summary>
-        /// Indicates that a given .NET language does not support
-        /// namespace aliases.
-        /// </summary>
-        None = 0,
+    None = 0,
 
-        /// <summary>
-        /// Indicates that the namespace should be placed before
-        /// the alias in the import/using statement.
-        /// </summary>
-        NamespaceFirst,
+    /// <summary>
+    /// Indicates that the namespace should be placed before the alias in
+    /// the import/using statement.
+    /// </summary>
+    NamespaceFirst,
 
-        /// <summary>
-        /// /// Indicates that the alias should be placed before
-        /// the namespace in the import/using statement.
-        /// </summary>
-        AliasFirst
-    }
+    /// <summary>
+    /// /// Indicates that the alias should be placed before the namespace
+    /// in the import/using statement.
+    /// </summary>
+    AliasFirst
 }

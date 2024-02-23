@@ -24,39 +24,38 @@ using System;
 using System.Collections.Generic;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Equality comparer class used to ensure that circular part references are
+/// avoided when trying to build source code for <see cref="OpenXmlPart"/>
+/// objects.
+/// </summary>
+public sealed class UriEqualityComparer : EqualityComparer<Uri>
 {
+    #region Public Static Fields
+
     /// <summary>
-    /// Equality comparer class used to ensure that circular part references are avoided when
-    /// trying to build source code for <see cref="OpenXmlPart"/> objects.
+    /// A default <see cref="UriEqualityComparer"/> to use when comparing 2
+    /// <see cref="Uri"/> objects.
     /// </summary>
-    public sealed class UriEqualityComparer : EqualityComparer<Uri>
+    public static readonly UriEqualityComparer DefaultComparer = new();
+
+    #endregion
+
+    #region Public Instance Methods
+
+    /// <inheritdoc/>
+    public override bool Equals(Uri x, Uri y)
     {
-        #region Public Static Fields
-
-        /// <summary>
-        /// A default <see cref="UriEqualityComparer"/> to use when comparing 2 <see cref="Uri"/>
-        /// objects.
-        /// </summary>
-        public static readonly UriEqualityComparer DefaultComparer = new UriEqualityComparer();
-
-        #endregion
-
-        #region Public Instance Methods 
-
-        /// <inheritdoc/>
-        public override bool Equals(Uri x, Uri y)
-        {
-            if (x == null || y == null) return false;
-            return x == y;
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode(Uri obj)
-        {
-            return obj.ToString().GetHashCode();
-        }
-
-        #endregion
+        return x != null && y != null && x == y;
     }
+
+    /// <inheritdoc/>
+    public override int GetHashCode(Uri obj)
+    {
+        return obj.ToString().GetHashCode();
+    }
+
+    #endregion
 }

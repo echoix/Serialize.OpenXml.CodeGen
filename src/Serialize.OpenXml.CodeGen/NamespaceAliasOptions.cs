@@ -23,138 +23,114 @@ DEALINGS IN THE SOFTWARE.
 using System;
 using System.CodeDom;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Class used to organize namespace import information during the OpenXml
+/// document reflection process.
+/// </summary>
+public class NamespaceAliasOptions
 {
+    #region Public Static Fields
+
     /// <summary>
-    /// Class used to organize namespace import information
-    /// during the OpenXml document reflection process.
+    /// Gets a <see cref="NamespaceAliasOptions"/> object to use with .NET
+    /// languages that do not support namespace aliasing.
     /// </summary>
-    public class NamespaceAliasOptions
+    public static readonly NamespaceAliasOptions Empty = new();
+
+    /// <summary>
+    /// Gets a <see cref="NamespaceAliasOptions"/> object to use with the
+    /// first class Microsoft .NET languages, C# and VB.NET.
+    /// </summary>
+    public static readonly NamespaceAliasOptions Default =
+        new() { Order = NamespaceAliasOrder.AliasFirst, AssignmentOperator = "=" };
+
+    #endregion
+
+    #region Public Constructors
+
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="NamespaceAliasOptions"/> class that is empty.
+    /// </summary>
+    public NamespaceAliasOptions()
     {
-        #region Public Static Fields
-
-        /// <summary>
-        /// Gets a <see cref="NamespaceAliasOptions"/> object to use
-        /// with .NET languages that do not support namespace aliasing.
-        /// </summary>
-        public static readonly NamespaceAliasOptions Empty
-            = new NamespaceAliasOptions();
-
-        /// <summary>
-        /// Gets a <see cref="NamespaceAliasOptions"/> object to use
-        /// with the first class Microsoft .NET languages, C# and
-        /// VB.NET.
-        /// </summary>
-        public static readonly NamespaceAliasOptions Default
-            = new NamespaceAliasOptions()
-        {
-            Order = NamespaceAliasOrder.AliasFirst,
-            AssignmentOperator = "="
-        };
-
-        #endregion
-
-        #region Public Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NamespaceAliasOptions"/>
-        /// class that is empty.
-        /// </summary>
-        public NamespaceAliasOptions()
-        {
-            AssignmentOperator = String.Empty;
-            Order = NamespaceAliasOrder.None;
-        }
-
-        #endregion
-
-        #region Public Instance Properties
-
-        /// <summary>
-        /// Gets or sets the text used to assign an alias to a namespace.
-        /// </summary>
-        public string AssignmentOperator
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Indicates which order the namespace alias assignment is
-        /// specified.
-        /// </summary>
-        public NamespaceAliasOrder Order
-        {
-            get;
-            set;
-        }
-
-        #endregion
-
-        #region Public Instance Methods
-
-        /// <summary>
-        /// Builds a new <see cref="CodeNamespaceImport"/> object based
-        /// on the settings of the current object.
-        /// </summary>
-        /// <param name="ns">
-        /// The namespace to build the new <see cref="CodeNamespaceImport"/>
-        /// object.
-        /// </param>
-        /// <param name="alias">
-        /// The alias name to use when building the new <see cref="CodeNamespaceImport"/>
-        /// object.
-        /// </param>
-        /// <returns>
-        /// A new <see cref="CodeNamespaceImport"/> object.
-        /// </returns>
-        public virtual CodeNamespaceImport BuildNamespaceImport(string ns, string alias)
-        {
-            if (String.IsNullOrWhiteSpace(alias) ||
-                Order == NamespaceAliasOrder.None)
-                return new CodeNamespaceImport(ns);
-
-            const string assignment = "{0} {1} {2}";
-            string name = String.Empty;
-
-            switch (Order)
-            {
-                case NamespaceAliasOrder.NamespaceFirst:
-                    name = String.Format(assignment,
-                        ns.Trim(),
-                        AssignmentOperator.Trim(),
-                        alias.Trim());
-                    break;
-                case NamespaceAliasOrder.AliasFirst:
-                    name = String.Format(assignment,
-                        alias.Trim(),
-                        AssignmentOperator.Trim(),
-                        ns.Trim());
-                    break;
-            }
-            return new CodeNamespaceImport(name);
-        }
-
-        /// <summary>
-        /// Builds a new <see cref="CodeNamespaceImport"/> object based
-        /// on the settings of the current object.
-        /// </summary>
-        /// <param name="ns">
-        /// The <see cref="Type"/> object containing the namespace to build
-        /// the new <see cref="CodeNamespaceImport"/> object.
-        /// </param>
-        /// <param name="alias">
-        /// The alias name to use when building the new <see cref="CodeNamespaceImport"/>
-        /// object.
-        /// </param>
-        /// <returns>
-        /// A new <see cref="CodeNamespaceImport"/> object.
-        /// </returns>
-        public CodeNamespaceImport BuildNamespaceImport(Type ns, string alias)
-        {
-            return BuildNamespaceImport(ns.Namespace, alias);
-        }
-
-        #endregion
+        AssignmentOperator = string.Empty;
+        Order = NamespaceAliasOrder.None;
     }
+
+    #endregion
+
+    #region Public Instance Properties
+
+    /// <summary>
+    /// Gets or sets the text used to assign an alias to a namespace.
+    /// </summary>
+    public string AssignmentOperator { get; set; }
+
+    /// <summary>
+    /// Indicates which order the namespace alias assignment is specified.
+    /// </summary>
+    public NamespaceAliasOrder Order { get; set; }
+
+    #endregion
+
+    #region Public Instance Methods
+
+    /// <summary>
+    /// Builds a new <see cref="CodeNamespaceImport"/> object based on the
+    /// settings of the current object.
+    /// </summary>
+    /// <param name="ns">The namespace to build the new
+    ///     <see cref="CodeNamespaceImport"/> object.</param>
+    /// <param name="alias">The alias name to use when building the new
+    ///     <see cref="CodeNamespaceImport"/> object.</param>
+    /// <returns>A new <see cref="CodeNamespaceImport"/> object.</returns>
+    public virtual CodeNamespaceImport BuildNamespaceImport(string ns, string alias)
+    {
+        if (string.IsNullOrWhiteSpace(alias) || Order == NamespaceAliasOrder.None)
+            return new CodeNamespaceImport(ns);
+
+        const string assignment = "{0} {1} {2}";
+        string name = string.Empty;
+
+        switch (Order)
+        {
+            case NamespaceAliasOrder.NamespaceFirst:
+                name = string.Format(
+                    assignment,
+                    ns.Trim(),
+                    AssignmentOperator.Trim(),
+                    alias.Trim()
+                );
+                break;
+            case NamespaceAliasOrder.AliasFirst:
+                name = string.Format(
+                    assignment,
+                    alias.Trim(),
+                    AssignmentOperator.Trim(),
+                    ns.Trim()
+                );
+                break;
+        }
+        return new CodeNamespaceImport(name);
+    }
+
+    /// <summary>
+    /// Builds a new <see cref="CodeNamespaceImport"/> object based on the
+    /// settings of the current object.
+    /// </summary>
+    /// <param name="ns">The <see cref="Type"/> object containing the
+    ///     namespace to build the new <see cref="CodeNamespaceImport"/>
+    ///     object.</param>
+    /// <param name="alias">The alias name to use when building the new
+    ///     <see cref="CodeNamespaceImport"/> object.</param>
+    /// <returns>A new <see cref="CodeNamespaceImport"/> object.</returns>
+    public CodeNamespaceImport BuildNamespaceImport(Type ns, string alias)
+    {
+        return BuildNamespaceImport(ns.Namespace, alias);
+    }
+
+    #endregion
 }

@@ -22,22 +22,21 @@ DEALINGS IN THE SOFTWARE.
 
 using System;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Defines objects that provide custom code generation instructions for
+/// specific OpenXml SDK objects that the process may encounter.
+/// </summary>
+public interface IOpenXmlHandler
 {
+    #region Properties
+
     /// <summary>
-    /// Defines objects that provide custom code generation instructions for
-    /// specific OpenXml SDK objects that the process may encounter.
+    /// The <see cref="Type"/> of object that the current object generates
+    /// source code for.
     /// </summary>
-    public interface IOpenXmlHandler
-    {
-        #region Properties
+    Type OpenXmlType { get; }
 
-        /// <summary>
-        /// The <see cref="Type"/> of object that the current object generates
-        /// source code for.
-        /// </summary>
-        Type OpenXmlType { get; }
-
-        #endregion
-    }
+    #endregion
 }

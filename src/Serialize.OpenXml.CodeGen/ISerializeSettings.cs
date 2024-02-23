@@ -25,62 +25,63 @@ using System.Collections.Generic;
 using System.Xml;
 using DocumentFormat.OpenXml;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Defines objects containing settings to use when generating source code
+/// for OpenXml SDK based files.
+/// </summary>
+public interface ISerializeSettings
 {
+    #region Properties
+
     /// <summary>
-    /// Defines objects containing settings to use when generating
-    /// source code for OpenXml SDK based files.
+    /// Gets the lookup collection of <see cref="IOpenXmlHandler"/> objects
+    /// to use for custom code generations for specific OpenXml SDK objects.
     /// </summary>
-    public interface ISerializeSettings
-    {
-        #region Properties
+    /// <remarks>
+    /// If this collection is <see langword="null"/> or if the current
+    /// OpenXml SDK object type being analyzed does not exist, then the
+    /// default code generation process will be used.
+    /// </remarks>
+    IReadOnlyDictionary<Type, IOpenXmlHandler> Handlers { get; }
 
-        /// <summary>
-        /// Gets the lookup collection of <see cref="IOpenXmlHandler"/> objects to use
-        /// for custom code generations for specific OpenXml SDK objects.
-        /// </summary>
-        /// <remarks>
-        /// If this collection is <see langword="null"/> or if the current OpenXml SDK
-        /// object type being analyzed does not exist, then the default code generation
-        /// process will be used.
-        /// </remarks>
-        IReadOnlyDictionary<Type, IOpenXmlHandler> Handlers { get; }
+    /// <summary>
+    /// Gets all of the <see cref="XmlNodeType"/> setting values of the
+    /// <see cref="OpenXmlMiscNode"/> objects to ignore.
+    /// </summary>
+    /// <remarks>
+    /// If this collection is <see langword="null"/> or if the
+    /// <see cref="XmlNodeType"/> value of a <see cref="OpenXmlMiscNode"/>
+    /// object does not exist in this collection, then the
+    /// <see cref="OpenXmlMiscNode"/> object will be processed as a normal
+    /// <see cref="OpenXmlElement"/> object.
+    /// </remarks>
+    IReadOnlyList<XmlNodeType> IgnoreMiscNodeTypes { get; }
 
-        /// <summary>
-        /// Gets all of the <see cref="XmlNodeType"/> setting values of the
-        /// <see cref="OpenXmlMiscNode"/> objects to ignore.
-        /// </summary>
-        /// <remarks>
-        /// If this collection is <see langword="null"/> or if the <see cref="XmlNodeType"/>
-        /// value of a <see cref="OpenXmlMiscNode"/> object does not exist in this collection,
-        /// then the <see cref="OpenXmlMiscNode"/> object will be processed as a normal
-        /// <see cref="OpenXmlElement"/> object.
-        /// </remarks>
-        IReadOnlyList<XmlNodeType> IgnoreMiscNodeTypes { get; }
+    /// <summary>
+    /// Indicates whether or not to ignore
+    /// <see cref="OpenXmlUnknownElement"/> objects when generating source
+    /// code.
+    /// </summary>
+    bool IgnoreUnknownElements { get; }
 
-        /// <summary>
-        /// Indicates whether or not to ignore <see cref="OpenXmlUnknownElement"/>
-        /// objects when generating source code.
-        /// </summary>
-        bool IgnoreUnknownElements { get; }
+    /// <summary>
+    /// Gets the <see cref="NamespaceAliasOptions"/> object to use during
+    /// the code generation process.
+    /// </summary>
+    NamespaceAliasOptions NamespaceAliasOptions { get; }
 
-        /// <summary>
-        /// Gets the <see cref="NamespaceAliasOptions"/> object to use during the code
-        /// generation process.
-        /// </summary>
-        NamespaceAliasOptions NamespaceAliasOptions { get; }
+    /// <summary>
+    /// Gets the name of the namespace to use for the generated code.
+    /// </summary>
+    string NamespaceName { get; }
 
-        /// <summary>
-        /// Gets the name of the namespace to use for the generated code.
-        /// </summary>
-        string NamespaceName { get; }
+    /// <summary>
+    /// Indicates whether or not to generate unique variable names for each
+    /// <see cref="OpenXmlElement"/> object being serialized.
+    /// </summary>
+    bool UseUniqueVariableNames { get; }
 
-        /// <summary>
-        /// Indicates whether or not to generate unique variable names for each
-        /// <see cref="OpenXmlElement"/> object being serialized.
-        /// </summary>
-        bool UseUniqueVariableNames { get; }
-
-        #endregion
-    }
+    #endregion
 }

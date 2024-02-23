@@ -22,20 +22,20 @@ DEALINGS IN THE SOFTWARE.
 
 using System;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Simple collection to maintain the <see cref="TypeMonitor"/> objects for
+/// the code generation of a given
+/// <see cref="DocumentFormat.OpenXml.OpenXmlElement"/>.
+/// </summary>
+internal class TypeMonitorCollection
+    : System.Collections.ObjectModel.KeyedCollection<Type, TypeMonitor>
 {
-    /// <summary>
-    /// Simple collection to maintain the <see cref="TypeMonitor"/> objects for
-    /// the code generation of a given <see cref="DocumentFormat.OpenXml.OpenXmlElement"/>.
-    /// </summary>
-    internal class TypeMonitorCollection
-        : System.Collections.ObjectModel.KeyedCollection<Type, TypeMonitor>
-    {
-        #region Protected Instance Methods
+    #region Protected Instance Methods
 
-        /// <inheritdoc/>
-        protected override Type GetKeyForItem(TypeMonitor item) => item.Type;
+    /// <inheritdoc/>
+    protected override Type GetKeyForItem(TypeMonitor item) => item.Type;
 
-        #endregion
-    }
+    #endregion
 }

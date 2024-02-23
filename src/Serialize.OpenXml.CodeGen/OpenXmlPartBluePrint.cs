@@ -24,128 +24,123 @@ using System;
 using System.Globalization;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// Simple organization class used to keep track of all the OpenXmlPart
+/// details needed to complete a code generation request.
+/// </summary>
+public sealed class OpenXmlPartBluePrint : IEquatable<OpenXmlPartBluePrint>
 {
+    #region Public Constructrs
+
     /// <summary>
-    /// Simple organization class used to keep track of all the OpenXmlPart details needed
-    /// to complete a code generation request.
+    /// Initializes a new instance of the <see cref="OpenXmlPartBluePrint"/>
+    /// class with the required <see cref="OpenXmlPart"/> object and
+    /// instance variable name.
     /// </summary>
-    public sealed class OpenXmlPartBluePrint : IEquatable<OpenXmlPartBluePrint>
+    /// <param name="part">The <see cref="OpenXmlPart"/> object.</param>
+    /// <param name="varName">Variable name that <paramref name="part"/> was
+    ///     initialized with in the generated code.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="part"/> is
+    ///     <see langword="null"/> or <paramref name="varName"/> is
+    ///     <see langword="null"/> or blank.</exception>
+    public OpenXmlPartBluePrint(OpenXmlPart part, string varName)
     {
-        #region Public Constructrs
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OpenXmlPartBluePrint"/> class
-        /// with the required <see cref="OpenXmlPart"/> object and instance variable name.
-        /// </summary>
-        /// <param name="part">
-        /// The <see cref="OpenXmlPart"/> object.
-        /// </param>
-        /// <param name="varName">
-        /// Variable name that <paramref name="part"/> was initialized with in the
-        /// generated code.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// <paramref name="part"/> is <see langword="null"/> or <paramref name="varName"/>
-        /// is <see langword="null"/> or blank.
-        /// </exception>
-        public OpenXmlPartBluePrint(OpenXmlPart part, string varName)
-        {
-            Part = part ?? throw new ArgumentNullException(nameof(part));
-            VariableName = varName ?? throw new ArgumentNullException(nameof(varName));
-            MethodName = this.CreateMethodName(VariableName);
-            PartType = Part.GetType();
-        }
-
-        #endregion
-
-        #region Public Instance Properties
-
-        /// <summary>
-        /// Gets the name to use when generating the code responsible for creating
-        /// <see cref="Part"/>.
-        /// </summary>
-        public string MethodName { get; private set;}
-
-        /// <summary>
-        /// Gets the <see cref="OpenXmlPart"/> object that this instance represents.
-        /// </summary>
-        public OpenXmlPart Part { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="Type"/> of <see cref="Part"/> that this instance represents.
-        /// </summary>
-        public Type PartType { get; private set; }
-
-        /// <summary>
-        /// Gets the <see cref="Uri"/> for this object.
-        /// </summary>
-        public Uri Uri => Part?.Uri;
-
-        /// <summary>
-        /// Gets the variable name that <see cref="Part"/> was initialized with.
-        /// </summary>
-        public string VariableName { get; private set; }
-
-        #endregion
-
-        #region Public Instance Methods
-
-        /// <inheritdoc/>
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-            if (!(obj is OpenXmlPartBluePrint)) return false;
-            if (Object.ReferenceEquals((object)this, obj)) return true;
-            return Equals(obj as OpenXmlPartBluePrint);
-        }
-
-        /// <inheritdoc/>
-        public bool Equals(OpenXmlPartBluePrint other)
-        {
-            if (other == null) return false;
-            return UriEqualityComparer.DefaultComparer.Equals(Uri, other.Uri);
-        }
-
-        /// <inheritdoc/>
-        public override int GetHashCode()
-        {
-            if (Uri == null) return 0;
-            return Uri.GetHashCode();
-        }
-
-        #endregion
-
-        #region Private Instance Methods
-
-        /// <summary>
-        /// Create a method name for the current instance.
-        /// </summary>
-        /// <param name="varName">
-        /// The variable name that this instance was initialized with.
-        /// </param>
-        /// <returns>
-        /// A <see cref="string"/> method name.
-        /// </returns>
-        private string CreateMethodName(string varName)
-        {
-            CultureInfo ci = CultureInfo.CurrentCulture;
-            char[] chars = new char[varName.Length];
-
-            for (int i = 0; i < varName.Length; i++)
-            {
-                if (i == 0)
-                {
-                    chars[i] = !Char.IsUpper(varName[i])
-                        ? Char.ToUpper(varName[i], ci)
-                        : varName[i];
-                    continue;
-                }
-                chars[i] = varName[i];
-            }
-            return $"Generate{new string(chars)}";
-        }
-
-        #endregion
+        Part = part ?? throw new ArgumentNullException(nameof(part));
+        VariableName = varName ?? throw new ArgumentNullException(nameof(varName));
+        MethodName = this.CreateMethodName(VariableName);
+        PartType = Part.GetType();
     }
+
+    #endregion
+
+    #region Public Instance Properties
+
+    /// <summary>
+    /// Gets the name to use when generating the code responsible for
+    /// creating <see cref="Part"/>.
+    /// </summary>
+    public string MethodName { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="OpenXmlPart"/> object that this instance
+    /// represents.
+    /// </summary>
+    public OpenXmlPart Part { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Type"/> of <see cref="Part"/> that this instance
+    /// represents.
+    /// </summary>
+    public Type PartType { get; private set; }
+
+    /// <summary>
+    /// Gets the <see cref="Uri"/> for this object.
+    /// </summary>
+    public Uri Uri => Part?.Uri;
+
+    /// <summary>
+    /// Gets the variable name that <see cref="Part"/> was initialized with.
+    /// </summary>
+    public string VariableName { get; private set; }
+
+    #endregion
+
+    #region Public Instance Methods
+
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+        if (obj == null)
+            return false;
+        if (obj is not OpenXmlPartBluePrint)
+            return false;
+        if (ReferenceEquals((object)this, obj))
+            return true;
+        return Equals(obj as OpenXmlPartBluePrint);
+    }
+
+    /// <inheritdoc/>
+    public bool Equals(OpenXmlPartBluePrint other)
+    {
+        if (other == null)
+            return false;
+        return UriEqualityComparer.DefaultComparer.Equals(Uri, other.Uri);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+        return (Uri?.GetHashCode()) ?? 0;
+    }
+
+    #endregion
+
+    #region Private Instance Methods
+
+    /// <summary>
+    /// Create a method name for the current instance.
+    /// </summary>
+    /// <param name="varName">The variable name that this instance was
+    ///     initialized with.</param>
+    /// <returns>A <see cref="string"/> method name.</returns>
+    private string CreateMethodName(string varName)
+    {
+        CultureInfo ci = CultureInfo.CurrentCulture;
+        char[] chars = new char[varName.Length];
+
+        for (int i = 0; i < varName.Length; i++)
+        {
+            if (i == 0)
+            {
+                chars[i] = !char.IsUpper(varName[i]) ? char.ToUpper(varName[i], ci) : varName[i];
+                continue;
+            }
+            chars[i] = varName[i];
+        }
+        return $"Generate{new string(chars)}";
+    }
+
+    #endregion
 }

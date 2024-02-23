@@ -22,79 +22,78 @@ DEALINGS IN THE SOFTWARE.
 
 using System;
 using System.Collections.Generic;
-using System.Xml;
 using System.Threading.Tasks;
+using System.Xml;
 
-namespace Serialize.OpenXml.CodeGen
+namespace Serialize.OpenXml.CodeGen;
+
+/// <summary>
+/// A default implementation of the <see cref="ISerializeSettings"/>
+/// interface to use when custom <see cref="ISerializeSettings"/> object is
+/// not provided.
+/// </summary>
+internal sealed class DefaultSerializeSettings : ISerializeSettings
 {
-    /// <summary>
-    /// A default implementation of the <see cref="ISerializeSettings"/> interface
-    /// to use when custom <see cref="ISerializeSettings"/> object is not provided.
-    /// </summary>
-    internal sealed class DefaultSerializeSettings : ISerializeSettings
-    {
-        #region Internal Static Fields
+    #region Internal Static Fields
 
-        /// <summary>
-        /// <see cref="TaskFactory"/> object used to call the async methods in
-        /// a synchronous fashion.
-        /// </summary>
-        /// <remarks>
-        /// This is being used in order to avoid big breaking changes.
-        /// </remarks>
-        internal static readonly TaskFactory TaskIndustry = new TaskFactory(
+    /// <summary>
+    /// <see cref="TaskFactory"/> object used to call the async methods in a
+    /// synchronous fashion.
+    /// </summary>
+    /// <remarks>
+    /// This is being used in order to avoid big breaking changes.
+    /// </remarks>
+    internal static readonly TaskFactory TaskIndustry =
+        new(
             System.Threading.CancellationToken.None,
             TaskCreationOptions.None,
             TaskContinuationOptions.None,
-            TaskScheduler.Default);
+            TaskScheduler.Default
+        );
 
-        #endregion
+    #endregion
 
-        #region Public Constructors
+    #region Public Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultSerializeSettings"/>
-        /// class that is empty.
-        /// </summary>
-        public DefaultSerializeSettings() : this(NamespaceAliasOptions.Default) {}
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="DefaultSerializeSettings"/> class that is empty.
+    /// </summary>
+    public DefaultSerializeSettings()
+        : this(NamespaceAliasOptions.Default) { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultSerializeSettings"/>
-        /// class with the requested <see cref="NamespaceAliasOptions"/> object.
-        /// </summary>
-        /// <param name="nsAliasOpts"></param>
-        public DefaultSerializeSettings(NamespaceAliasOptions nsAliasOpts)
-        {
-            NamespaceAliasOptions = nsAliasOpts
-                ?? throw new ArgumentNullException(nameof(nsAliasOpts));
-        }
-
-        #endregion
-
-        #region Public Instance Properties
-
-        /// <inheritdoc/>
-        public IReadOnlyDictionary<Type, IOpenXmlHandler> Handlers => null;
-
-        /// <inheritdoc/>
-        public IReadOnlyList<XmlNodeType> IgnoreMiscNodeTypes => null;
-
-        /// <inheritdoc/>
-        public bool IgnoreUnknownElements => false;
-
-        /// <inheritdoc/>
-        public NamespaceAliasOptions NamespaceAliasOptions
-        {
-            get;
-            private set;
-        }
-
-        /// <inheritdoc/>
-        public string NamespaceName => "OpenXmlSample";
-
-        /// <inheritdoc/>
-        public bool UseUniqueVariableNames => false;
-
-        #endregion
+    /// <summary>
+    /// Initializes a new instance of the
+    /// <see cref="DefaultSerializeSettings"/> class with the requested
+    /// <see cref="NamespaceAliasOptions"/> object.
+    /// </summary>
+    /// <param name="nsAliasOpts"></param>
+    public DefaultSerializeSettings(NamespaceAliasOptions nsAliasOpts)
+    {
+        NamespaceAliasOptions = nsAliasOpts ?? throw new ArgumentNullException(nameof(nsAliasOpts));
     }
+
+    #endregion
+
+    #region Public Instance Properties
+
+    /// <inheritdoc/>
+    public IReadOnlyDictionary<Type, IOpenXmlHandler> Handlers => null;
+
+    /// <inheritdoc/>
+    public IReadOnlyList<XmlNodeType> IgnoreMiscNodeTypes => null;
+
+    /// <inheritdoc/>
+    public bool IgnoreUnknownElements => false;
+
+    /// <inheritdoc/>
+    public NamespaceAliasOptions NamespaceAliasOptions { get; private set; }
+
+    /// <inheritdoc/>
+    public string NamespaceName => "OpenXmlSample";
+
+    /// <inheritdoc/>
+    public bool UseUniqueVariableNames => false;
+
+    #endregion
 }

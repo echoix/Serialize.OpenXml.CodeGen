@@ -20,27 +20,27 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 DEALINGS IN THE SOFTWARE.
 */
 
-using System;
 using System.CodeDom;
 
-namespace Serialize.OpenXml.CodeGen.Extentions
+namespace Serialize.OpenXml.CodeGen.Extensions;
+
+/// <summary>
+/// Static class containing extension methods for the
+/// <see cref="CodeStatementCollection"/> class.
+/// </summary>
+public static class CodeStatementCollectionExtensions
 {
+    #region Public Static Methods
+
     /// <summary>
-    /// Static class containing extension methods for the <see cref="CodeStatementCollection"/> class.
+    /// Adds a blank/empty code statement to an existing
+    /// <see cref="CodeStatementCollection"/> object.
     /// </summary>
-    public static class CodeStatementCollectionExtensions
-    {
-        #region Public Static Methods
+    /// <param name="statements">The existing
+    ///     <see cref="CodeStatementCollection"/> object to add the blank
+    ///     line statement to.</param>
+    public static void AddBlankLine(this CodeStatementCollection statements) =>
+        statements.Add(new CodeSnippetStatement(string.Empty));
 
-        /// <summary>
-        /// Adds a blank/empty code statement to an existing <see cref="CodeStatementCollection"/> object.
-        /// </summary>
-        /// <param name="statements">
-        /// The existing <see cref="CodeStatementCollection"/> object to add the blank line statement to.
-        /// </param>
-        public static void AddBlankLine(this CodeStatementCollection statements) =>
-            statements.Add(new CodeSnippetStatement(String.Empty));
-
-        #endregion
-    }
+    #endregion
 }
